@@ -1,10 +1,24 @@
 import os
 import asyncio
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-TOKEN = "8360005960:AAFrM_VHc3hpO6WeFa-9M_sC8ReOTqlWvys"
+# ========== DUMMY WEB SERVER ==========
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot is running")
 
+def run_server():
+    port = int(os.environ.get("PORT", 8000))
+    server = HTTPServer(("0.0.0.0", port), HealthHandler)
+    server.serve_forever()
+
+# ========== TELEGRAM BOT ==========
+TOKEN = os.getenv("8360005960:AAFrM_VHc3hpO6WeFa-9M_sC8ReOTqlWvys")
 if not TOKEN:
     raise RuntimeError("BOT_TOKEN not set")
 
@@ -31,11 +45,13 @@ async def tagall(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(text, parse_mode="Markdown")
 
-async def main():
+async def run_bot():
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("tagall", tagall))
     await app.run_polling()
 
+# ========== MAIN ==========
 if __name__ == "__main__":
-    asyncio.run(main())
+    threading.Thread(target=run_server, daemon=True).start()
+    asyncio.run(run_bot())
