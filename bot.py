@@ -18,9 +18,7 @@ def run_server():
     server.serve_forever()
 
 # ========== TELEGRAM BOT ==========
-TOKEN = os.getenv("8360005960:AAFrM_VHc3hpO6WeFa-9M_sC8ReOTqlWvys")
-if not TOKEN:
-    raise RuntimeError("BOT_TOKEN not set")
+TOKEN = "8360005960:AAFrM_VHc3hpO6WeFa-9M_sC8ReOTqlWvys"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
